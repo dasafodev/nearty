@@ -1,10 +1,18 @@
-import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import { AuthGuard } from 'src/auth/auth.guard';
 import { PlacesService } from './places.service';
 
 @Controller('places')
 export class PlacesController {
   constructor(private readonly placesService: PlacesService) {}
 
+  @UseGuards(AuthGuard)
   @Get('nearby')
   async nearbySearch(
     @Query('latitude') latitude: string,

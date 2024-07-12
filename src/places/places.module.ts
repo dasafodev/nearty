@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
-import { PlacesService } from './places.service';
+import { AuthModule } from 'src/auth/auth.module';
 import { PlacesController } from './places.controller';
+import { PlacesService } from './places.service';
 
 @Module({
+  imports: [AuthModule],
   controllers: [PlacesController],
   providers: [PlacesService],
 })
