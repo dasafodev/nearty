@@ -7,6 +7,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { PlacesModule } from './places/places.module';
+import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -32,7 +33,7 @@ import { UsersModule } from './users/users.module';
         username: configService.get<string>('DATABASE_USER'),
         password: configService.get<string>('DATABASE_PASSWORD'),
         database: configService.get<string>('DATABASE_NAME'),
-        entities: [],
+        entities: [User],
         synchronize: true,
       }),
       inject: [ConfigService],

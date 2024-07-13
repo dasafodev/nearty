@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsAlphanumeric,
   IsNotEmpty,
@@ -12,8 +13,10 @@ export class CreateUserDto {
   @IsAlphanumeric(null, {
     message: 'Username does not allow other than alpha numeric chars.',
   })
+  @ApiProperty()
   username: string;
 
   @IsNotEmpty()
+  @ApiProperty()
   password: string;
 }
