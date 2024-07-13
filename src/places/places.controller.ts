@@ -8,6 +8,7 @@ import {
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PlacesService } from './places.service';
+
 @ApiTags('Places')
 @ApiBearerAuth()
 @Controller('places')
