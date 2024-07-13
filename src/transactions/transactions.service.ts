@@ -13,8 +13,16 @@ export class TransactionsService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
-  create(createTransactionDto: CreateTransactionDto) {
-    return this.transactionRepository.save(createTransactionDto);
+  async create(createTransactionDto: CreateTransactionDto) {
+    const user = await this.userRepository.findOne({
+      where: { id: createTransactionDto.userId },
+    });
+    const newTransaction = this.transactionRepository.create({
+      user: user,
+      query: createTransactionDto.query,
+      transaction: createTransactionDto.transaction,
+    });
+    return this.transactionRepository.save(newTransaction);
   }
 
   async findAll(userId: string) {

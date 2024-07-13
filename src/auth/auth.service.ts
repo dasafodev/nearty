@@ -5,15 +5,16 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { TransactionsService } from 'src/transactions/transactions.service';
 import { UsersService } from '../users/users.service';
+import { TokenBlacklistService } from './token-blacklist.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
-    private transactionsService: TransactionsService,
+
     private jwtService: JwtService,
+    private tokenBlacklistService: TokenBlacklistService,
   ) {}
 
   saltOrRounds: number = 10;
@@ -31,11 +32,7 @@ export class AuthService {
       throw new UnauthorizedException();
     }
     const payload = { sub: user.id, username: user.username };
-    this.transactionsService.create({
-      transaction: 'login',
-      user,
-      query: user.username,
-    });
+
     return {
       accessToken: await this.jwtService.signAsync(payload),
     };
@@ -51,11 +48,15 @@ export class AuthService {
       username,
       password: hashPass,
     });
-    this.transactionsService.create({
-      transaction: 'register',
-      user: newUser,
-      query: username,
-    });
+
     return { username: newUser.username };
+  }
+
+  async logout(token: string) {
+    this.tokenBlacklistService.addToken(token);
+  }
+
+  async isTokenBlacklisted(token: string): Promise<boolean> {
+    return this.tokenBlacklistService.isTokenBlacklisted(token);
   }
 }

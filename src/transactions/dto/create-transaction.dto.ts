@@ -1,5 +1,4 @@
 import { IsNotEmpty } from 'class-validator';
-import { User } from 'src/users/entities/user.entity';
 
 export class CreateTransactionDto {
   @IsNotEmpty()
@@ -7,5 +6,5 @@ export class CreateTransactionDto {
   @IsNotEmpty()
   query: string;
   @IsNotEmpty()
-  user: User;
+  userId: number;
 }
