@@ -4,9 +4,16 @@ import {
   Get,
   Query,
   UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { NearbySearchDto } from './dto/nearby-search.dto';
 import { PlacesService } from './places.service';
 
 @ApiTags('Places')
@@ -15,32 +22,54 @@ import { PlacesService } from './places.service';
 export class PlacesController {
   constructor(private readonly placesService: PlacesService) {}
 
-  @UseGuards(AuthGuard)
   @Get('nearby')
-  @ApiQuery({ name: 'latitude', required: true, type: String })
-  @ApiQuery({ name: 'longitude', required: true, type: String })
-  @ApiQuery({ name: 'radius', required: false, type: String })
-  @ApiQuery({ name: 'type', required: false, type: String })
-  @ApiQuery({ name: 'pagetoken', required: false, type: String })
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Find nearby places' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of nearby places',
+    schema: {
+      example: {
+        places: [
+          {
+            name: 'Place 1',
+            rating: 4.5,
+            user_ratings_total: 100,
+            vicinity: '123 Main St',
+            place_id: 'abc123',
+          },
+        ],
+        nextPageToken: 'next_page_token',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Latitude and longitude are required',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
   async nearbySearch(
-    @Query('latitude') latitude: string,
-    @Query('longitude') longitude: string,
-    @Query('radius') radius?: string,
-    @Query('type') type?: string,
-    @Query('pagetoken') pageToken?: string,
+    @Query(new ValidationPipe({ transform: true })) query: NearbySearchDto,
   ) {
+    const { latitude, longitude, radius, type, pagetoken } = query;
+
     if (!latitude || !longitude) {
       throw new BadRequestException('Latitude and longitude are required');
     }
+
     const latitudeNumber = parseFloat(latitude);
     const longitudeNumber = parseFloat(longitude);
     const radiusNumber = radius ? parseInt(radius, 10) : undefined;
+
     return this.placesService.nearbySearch(
       latitudeNumber,
       longitudeNumber,
       radiusNumber,
       type,
-      pageToken,
+      pagetoken,
     );
   }
 }
